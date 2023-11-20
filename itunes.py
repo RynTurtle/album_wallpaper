@@ -51,3 +51,19 @@ class itunes():
         data = r.json()
         if len(data['results']) > 0:
             return data['results'][1:] # the first item in list is just information 
+        
+
+
+
+    def search_song(self,search): 
+        r = requests.get(f"https://itunes.apple.com/search?term={search}&limit=200&country={self.country}&entity=song")
+        print("searching for the song")
+        data = r.json()
+        artist_results = []
+        if len(data['results']) > 0:
+            for result in data['results']:
+                if result['artistName'].lower() == self.artist.lower() or self.artist.lower() in result['artistName'].lower() or result['artistName'].lower() in self.artist.lower():
+                    artist_results.append(result) 
+                
+            
+            return artist_results
