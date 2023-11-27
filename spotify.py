@@ -34,7 +34,7 @@ class spotify():
 
             with open("keys.json","w") as f:        
                 json.dump(self.data,indent=2,fp=f)
-
+        
         with open("keys.json") as f:
             self.data = json.load(f)
 
@@ -85,7 +85,9 @@ class spotify():
             for t in tracks:
                 album_length += t['duration']
             return {"album_type":data['album_type'],"artist":data['artists'],"record-label":data['label'],"release-date":data['release_date'],"tracks":tracks,"disc_amount":data['tracks']['items'][-1]['disc_number'],"album_duration_ms":album_length}
-    
+        else:
+            print(r.content)
+
     def playback_state(self):
         r = requests.get("https://api.spotify.com/v1/me/player",headers=self.headers)
         if r.status_code == 200:
@@ -101,9 +103,6 @@ class spotify():
         images_downloaded = os.listdir("./images/compressed/")
         total_info = {}
         playback = self.playback_state()
-        if 'item' in playback:
-            if playback['item'] == None: 
-                return False 
             
         if playback['is_playing'] == True and playback['item']['is_local'] != True: # ignores currently playing local file because i want to display album image which isnt provided
             print("listening to music")
@@ -127,18 +126,15 @@ class spotify():
             image = album['image']
             album_id = album['id']
 
-
         lookup_album = self.album_lookup(album_id)
         total_info['album_id'] =  album_id
         total_info['album_info'] = lookup_album 
         total_info['album_info']['album'] = album_name
         total_info['album_info']['image'] = image
-
         if f"{album_id}.jpg" not in images_downloaded: 
             img_data = requests.get(image).content
             with open(f'./images/compressed/{album_id}.jpg', 'wb') as f:
                 print(f"downloading: {album_id}")
                 f.write(img_data) 
-
         return total_info
 

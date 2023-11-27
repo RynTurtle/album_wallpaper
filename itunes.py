@@ -1,8 +1,7 @@
 import requests 
 import cv2 as cv2
 import numpy as np
-import urllib.request
-import time
+
 
 class UnFoundException(Exception):
     "Raised when an album cant be found"
@@ -23,6 +22,7 @@ class itunes():
         url = data['artworkUrl100']
         path = url.split("/image/thumb/")[1].replace("/100x100bb.jpg","")
         uncompressed = f"https://a5.mzstatic.com/us/r1000/0/{path}"
+        print(f"found uncompresed: {uncompressed}")
         return uncompressed
 
 
@@ -56,14 +56,17 @@ class itunes():
 
 
     def search_song(self,search): 
-        r = requests.get(f"https://itunes.apple.com/search?term={search}&limit=200&country={self.country}&entity=song")
-        print("searching for the song")
-        data = r.json()
-        artist_results = []
-        if len(data['results']) > 0:
-            for result in data['results']:
-                if result['artistName'].lower() == self.artist.lower() or self.artist.lower() in result['artistName'].lower() or result['artistName'].lower() in self.artist.lower():
-                    artist_results.append(result) 
+        try:
+            r = requests.get(f"https://itunes.apple.com/search?term={search}&limit=200&country={self.country}&entity=song")
+            print("searching for the song")
+            data = r.json()
+            artist_results = []
+            if len(data['results']) > 0:
+                for result in data['results']:
+                    if result['artistName'].lower() == self.artist.lower() or self.artist.lower() in result['artistName'].lower() or result['artistName'].lower() in self.artist.lower():
+                        artist_results.append(result) 
+                    
                 
-            
-            return artist_results
+                return artist_results
+        except Exception as e:
+            print(f"Exception whilst searching for song: {e}") 
