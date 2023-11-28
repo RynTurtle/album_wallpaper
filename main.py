@@ -38,12 +38,14 @@ def find_itunes_album_equal(albums,spotify_album_name):
         
 def get_info():
     wallpapers_downloaded = os.listdir("./images/wallpapers/")
+    uncompressed_downloaded = os.listdir("./images/uncompressed/")
+    compressed_downloaded = os.listdir("./images/compressed/")
+
     album = s.info()
     if album  != False:
         artists = album['album_info']['artist']
         album_name = album['album_info']['album']
         album_id = album['album_id']
-
         # download  uncompressed if you havent already 
         if f"{album['album_id']}.jpg" not in wallpapers_downloaded:
             try:
@@ -51,6 +53,7 @@ def get_info():
             except:
                 return False 
 
+            # attempts to find the itunes album  
             successful_find = find_itunes_album_equal(i.lookup_artist_albums(),album_name)
             if successful_find == None:
                 successful_find = find_itunes_album_equal(i.lookup_artist_songs(),album_name)
@@ -67,16 +70,20 @@ def get_info():
                 with open(f'./images/uncompressed/{album_id}.jpg', 'wb') as f:
                     print(f"downloading: {album_id}")
                     f.write(img_data)
-
             #download edited poster using ffmpeg, chooses path based on if higher quality  can be found or not  
-            subprocess.run(["ffmpeg", "-i",path, "-i",path,"-y","-filter_complex", f"boxblur=50:50,scale=iw*16/9:ih,overlay=x=(main_w-overlay_w)/2:y=0", "-q:v", "1",f"./images/wallpapers/{info['album_id']}.jpg"])
+            subprocess.run(["ffmpeg", "-i",path, "-i",path,"-y","-filter_complex", f"boxblur=50:50,scale=iw*16/9:ih,overlay=x=(main_w-overlay_w)/2:y=0", "-q:v", "1",f"./images/wallpapers/{album_id}.jpg"])
+    
+        #remove the two copies once the wallpaper is downloaded
+        for f in uncompressed_downloaded:
+            os.remove(f"./images/uncompressed/{f}")
+        for f in compressed_downloaded:
+            os.remove(f"./images/compressed/{f}")
 
     return album 
 
 
 
 while True:
-
     info = get_info()
     if info != False:            
         set_wallpaper(info['album_id'])
