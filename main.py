@@ -87,6 +87,10 @@ while True:
     info = get_info()
     if info != False:            
         set_wallpaper(info['album_id'])
+        if 'currently_playing' not in info:
+            # sleep 30secs per album change if your just choosing random covers 
+            time.sleep(30)
+            
     time.sleep(1)
 
     # get the main screen number, change the main screen to the one with the poster
