@@ -71,7 +71,7 @@ def get_info():
                     print(f"downloading: {album_id}")
                     f.write(img_data)
             #download edited poster using ffmpeg, chooses path based on if higher quality  can be found or not  
-            subprocess.run(["ffmpeg", "-i",path, "-i",path,"-y","-filter_complex", f"boxblur=50:50,scale=iw*16/9:ih,overlay=x=(main_w-overlay_w)/2:y=0", "-q:v", "1",f"./images/wallpapers/{album_id}.jpg"])
+            subprocess.run(["ffmpeg", "-i",path, "-i",path,"-y","-filter_complex", f"boxblur=100:100,scale=iw*16/9:ih,overlay=x=(main_w-overlay_w)/2:y=0", "-q:v", "1",f"./images/wallpapers/{album_id}.jpg"])
     
         #remove the two copies once the wallpaper is downloaded
         for f in uncompressed_downloaded:
@@ -89,7 +89,5 @@ while True:
         set_wallpaper(info['album_id'])
     time.sleep(1)
 
-    #potential  future 
-    # SCREEN #1 album image
-    # SCREEN #2 album info
-    # BACKGROUND - blurred image of album 
+    # get the main screen number, change the main screen to the one with the poster
+    # get all the other screens, change their backgrounds to the stretched blurred image 
