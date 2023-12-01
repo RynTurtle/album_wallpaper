@@ -3,7 +3,6 @@ import json
 import math
 import os 
 import random 
-import time 
 from itunes import itunes,UnFoundException
 import json 
 
@@ -15,8 +14,8 @@ class spotify():
         self.scopes = "user-library-read user-read-playback-state"
         self.headers = {"Authorization": "Bearer " +  self.data['access_token'],"Content-Type": "application/json "}
         authorize_url = f"https://accounts.spotify.com/authorize?client_id={self.data['client_id']}&response_type=code&redirect_uri={self.redirect_uri}&scope={self.scopes.replace(' ','%20')}"
-        self.start = time.time()
         self.liked_albums = []
+        self.lookedup_albums = {}
         if self.data['refresh_token'] == "":
             code = input(f"Click here and copy paste your authorization code {authorize_url}:  ")
             self.get_refresh(code)
@@ -50,6 +49,7 @@ class spotify():
 
 
     def album_images(self):  # gets unique album images from your liked songs 
+        print("getting liked album images")
         albums = []
         s = requests.Session()
         s.headers.update(self.headers)
@@ -74,6 +74,7 @@ class spotify():
         # potential data to show: album information e.g. name, date, album count 
 
     def album_lookup(self,album_id): # finds tracklist and information about the specified album  (limit to 50 songs in a playlist atm, need to change for huge albums)
+        print(f"looking up album: {album_id}")
         r = requests.get(f"https://api.spotify.com/v1/albums/{album_id}",headers=self.headers)
         if r.status_code == 200:
             data = r.json()
@@ -100,7 +101,6 @@ class spotify():
         
 
     def info(self):
-        images_downloaded = os.listdir("./images/compressed/")
         total_info = {}
         playback = self.playback_state()
             
@@ -126,15 +126,16 @@ class spotify():
             image = album['image']
             album_id = album['id']
 
-        lookup_album = self.album_lookup(album_id)
+        if album_id in self.lookedup_albums:
+            lookup_album = self.lookedup_albums[album_id]
+        else:
+            lookup_album = self.album_lookup(album_id)
+            self.lookedup_albums[album_id] = lookup_album 
+
         total_info['album_id'] =  album_id
         total_info['album_info'] = lookup_album 
         total_info['album_info']['album'] = album_name
         total_info['album_info']['image'] = image
-        if f"{album_id}.jpg" not in images_downloaded: 
-            img_data = requests.get(image).content
-            with open(f'./images/compressed/{album_id}.jpg', 'wb') as f:
-                print(f"downloading: {album_id}")
-                f.write(img_data) 
+        
         return total_info
 
