@@ -111,11 +111,15 @@ while True:
         cooldown = album_shuffle_cooldown
 
 
-    if time.time() - now > cooldown:
-        spotify_info = s.info()
-        i = itunes(spotify_info['album_info']['artist'][0]['name'],"gb")
-        a = album_wallpaper(i,spotify_info)
-        setup_result = a.wallpaper_setup()
-        a.set_wallpaper(setup_result)
-        now = time.time() 
-    time.sleep(1)
+    if time.time() - now > cooldown:        
+        try:
+            spotify_info = s.info()
+            i = itunes(spotify_info['album_info']['artist'][0]['name'],"gb")
+            a = album_wallpaper(i,spotify_info)
+            setup_result = a.wallpaper_setup()
+            a.set_wallpaper(setup_result)
+            now = time.time() 
+        except Exception as e:
+            print(e)
+
+    time.sleep(listening_cooldown)
