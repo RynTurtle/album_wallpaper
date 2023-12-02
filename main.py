@@ -61,6 +61,7 @@ class album_wallpaper():
                 path  = f"./images/compressed/{self.spotify_info['album_id']}.jpg"    
 
             # download wallpaper
+            
             subprocess.run(["ffmpeg", "-i",path, "-i",path,"-y","-filter_complex", f"boxblur=100:100,scale=iw*16/9:ih,overlay=x=(main_w-overlay_w)/2:y=0", "-q:v", "1",f"./images/wallpapers/{self.spotify_info['album_id']}.jpg"])
             #remove the two copies once the wallpaper is downloaded
             for f in self.uncompressed_downloaded:
@@ -73,27 +74,27 @@ class album_wallpaper():
 
 
     def lookup_itunes_album(self):
+        spotify_image = self.spotify_info['album_info']['image'] 
+        img_data = requests.get(spotify_image).content
+        with open(f'./images/compressed/{self.spotify_info["album_id"]}.jpg', 'wb') as f:
+            print(f"downloading compressed: {self.spotify_info['album_id']}")
+            f.write(img_data) 
+
         successful_find = self.get_itunes_album_equivelant(self.i.lookup_artist_albums())
         if successful_find == None:
             successful_find = self.get_itunes_album_equivelant(self.i.lookup_artist_songs())
         if successful_find == None:
             successful_find = self.get_itunes_album_equivelant(self.i.search_song(self.spotify_info['album_info']['album']))
         if successful_find == None:
+            print("could'nt find itunes album")
             return False
-        else:
-            uncompressed = self.i.get_uncompressed_image(successful_find)
-            img_data = requests.get(uncompressed).content
-            with open(f'./images/uncompressed/{self.spotify_info["album_id"]}.jpg', 'wb') as f:
-                print(f"downloading uncompressed: {self.spotify_info['album_id']}")
-                f.write(img_data)
-
-            spotify_image = self.spotify_info['album_info']['image'] 
-            img_data = requests.get(spotify_image).content
-            with open(f'./images/compressed/{self.spotify_info["album_id"]}.jpg', 'wb') as f:
-                print(f"downloading compressed: {self.spotify_info['album_id']}")
-                f.write(img_data) 
         
-            return True
+        uncompressed = self.i.get_uncompressed_image(successful_find)
+        img_data = requests.get(uncompressed).content
+        with open(f'./images/uncompressed/{self.spotify_info["album_id"]}.jpg', 'wb') as f:
+            print(f"downloading uncompressed: {self.spotify_info['album_id']}")
+            f.write(img_data)
+        return True
 
 
 
