@@ -103,7 +103,7 @@ now = time.time()
 #set the wallpaper cooldown 
 listening_cooldown=5
 album_shuffle_cooldown=30
-
+last_info = {"album_id":""}
 while True:
     playback = s.playback_state()
     if playback['is_playing'] == True and playback['item']['is_local'] != True:
@@ -115,11 +115,14 @@ while True:
     if time.time() - now > cooldown:        
         try:
             spotify_info = s.info()
-            i = itunes(spotify_info['album_info']['artist'][0]['name'],"gb")
-            a = album_wallpaper(i,spotify_info)
-            setup_result = a.wallpaper_setup()
-            a.set_wallpaper(setup_result)
-            now = time.time() 
+            if spotify_info['album_id'] != last_info['album_id']:
+                i = itunes(spotify_info['album_info']['artist'][0]['name'],"gb")
+                a = album_wallpaper(i,spotify_info)
+                setup_result = a.wallpaper_setup()
+                a.set_wallpaper(setup_result)
+
+                now = time.time()
+                last_info = spotify_info 
         except Exception as e:
             print(e)
 
