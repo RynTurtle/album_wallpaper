@@ -64,11 +64,11 @@ class album_wallpaper():
             
             subprocess.run(["ffmpeg", "-i",path, "-i",path,"-y","-filter_complex", f"boxblur=100:100,scale=iw*16/9:ih,overlay=x=(main_w-overlay_w)/2:y=0", "-q:v", "1",f"./images/wallpapers/{self.spotify_info['album_id']}.jpg"])
             #remove the two copies once the wallpaper is downloaded
-            for f in self.uncompressed_downloaded:
-                os.remove(f"./images/uncompressed/{f}")
-            for f in self.compressed_downloaded:
-                os.remove(f"./images/compressed/{f}")
+        for f in self.uncompressed_downloaded:
+            os.remove(f"./images/uncompressed/{f}")
 
+        for f in self.compressed_downloaded:
+            os.remove(f"./images/compressed/{f}")
         return self.spotify_info['album_id']
 
 
