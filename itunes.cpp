@@ -8,19 +8,6 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-std::string replace_spaces(const std::string& input) {
-    std::string result;
-    for (char ch : input) {
-        if (ch == ' ') {
-            result += "%20";
-        } else {
-            result += ch;
-        }
-    }
-
-    return result;
-}
-
 
 class Itunes {
     public:
@@ -28,7 +15,7 @@ class Itunes {
             // returns artist id
                 std::stringstream url;
                 url  << "https://itunes.apple.com/search?term=" << artist <<  "&entity=allArtist";
-                nlohmann::json results = request(replace_spaces(url.str()))["results"];
+                nlohmann::json results = get_request(url.str())["results"];
                 // Iterate through the JSON array
                 for (const auto& element : results) {
                     // Access individual values using the keys
@@ -46,7 +33,7 @@ class Itunes {
 
         auto get_albums(std::string artist_id){
             std::stringstream url;
-            url  << "http://itunes.apple.com/lookup?id=" << artist_id << "&entity=album&sort=recent&limit=200&country=gb";
+            url  << "https://itunes.apple.com/lookup?id=" << artist_id << "&entity=album&sort=recent&limit=200&country=gb";
             /*  first result is info regarding the artist e.g.
             {"amgArtistId":353484,"artistId":2715720,"artistLinkUrl":"https://music.apple.com/gb/artist/kanye-west/2715720?uo=4","artistName":"Kanye West","artistType":"Artist","primaryGenreId":18,"primaryGenreName":"Hip-Hop/Rap","wrapperType":"artist"}
                 the rest is the artists albums 
@@ -55,7 +42,7 @@ class Itunes {
                 for some reason specifying album also returns singles, itunes specify what they are e.g. - Single and - EP
                 spotify doesnt do this
             */
-            nlohmann::json results = request(replace_spaces(url.str()))["results"];
+            nlohmann::json results = get_request(url.str())["results"];
             return results;
         }
 

@@ -12,10 +12,22 @@ size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* out
 }
 
 
-nlohmann::json request(std::string url){
-    CURL* curl;
-    CURLcode res;
+std::string replace_spaces(const std::string& input) {
+    std::string result;
+    for (char ch : input) {
+        if (ch == ' ') {
+            result += "%20";
+        } else {
+            result += ch;
+        }
+    }
 
+    return result;
+}
+
+
+nlohmann::json get_request(std::string url){
+    CURL* curl;
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
     if (curl) {
@@ -27,22 +39,19 @@ nlohmann::json request(std::string url){
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
         // Perform the GET request
-        res = curl_easy_perform(curl);
+        CURLcode res = curl_easy_perform(curl);
         // Check for errors
-        if (res != CURLE_OK) {
-            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        } else {
-            // Get the HTTP response code
-            long httpCode = 0;
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-            std::cout << "HTTP Response Code: " << httpCode << std::endl;
-                
-            // parse json 
-            nlohmann::json json = nlohmann::json::parse(response);
-            return json;
-        }
-            // Cleanup
+
+        // Get the HTTP response code
+        long httpCode = 0;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+        std::cout << "HTTP Response Code: " << httpCode << std::endl;
         curl_easy_cleanup(curl);
+                
+        // parse json 
+        nlohmann::json json = nlohmann::json::parse(response);
+        return json;
+        
     } else {
         std::cerr << "Failed to initialize cURL." << std::endl;
         
@@ -50,4 +59,52 @@ nlohmann::json request(std::string url){
 
     // if nothing is returned then give an error 
     throw;
+}
+
+
+
+nlohmann::json post_request(std::string url,std::string paramaters){
+    // Initialize cURL
+    CURL* curl = curl_easy_init();
+    if (curl) {
+
+        // Set the request type to POST
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+        // Specify the content type
+        struct curl_slist* headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        // Set the URL
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+        // Set the request data (grant_type, code, redirect_uri, client_id, client_secret)
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, paramaters.c_str());
+
+        // Set the callback function to handle the response
+        std::string response;
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+        // Perform the request
+        CURLcode res = curl_easy_perform(curl);
+
+        // Check for errors
+        if (res != CURLE_OK) {
+            std::cerr << "cURL failed: " << curl_easy_strerror(res) << std::endl;
+        } else {
+            long httpCode = 0;
+            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+            std::cout << "HTTP Response Code: " << httpCode << std::endl;
+            nlohmann::json json = nlohmann::json::parse(response);
+            return json;
+        }
+
+        // Clean up cURL
+        curl_easy_cleanup(curl);
+        curl_slist_free_all(headers);
+    }
+    throw;
+
 }
