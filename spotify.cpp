@@ -22,7 +22,48 @@
 
     "https://accounts.spotify.com/authorize?client_id={client_id}&response_type=code&redirect_uri=redirect_uri&scope={scopes.replace(' ','%20')}" => gives code for you to use to get the refresh token which you will refresh to get the access token
 */
-
-
-
 #include "header.h"
+
+
+// get the token wanted from json file
+void get_token(){
+
+}
+
+// replace value of key from json file 
+void write_token(){
+
+} 
+
+
+
+// get CODE= value from giving application permissions 
+void first(){
+    
+}
+
+// use code to get refresh token 
+void second(){
+
+}
+
+// use refresh token to get access token 
+void third(){
+
+}
+
+
+// playback state 
+void playback_state(){
+
+}
+
+void get_liked_albums(){
+
+}
+
+
+int main(){
+}
+
+
