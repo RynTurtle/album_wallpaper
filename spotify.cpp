@@ -23,16 +23,35 @@
     "https://accounts.spotify.com/authorize?client_id={client_id}&response_type=code&redirect_uri=redirect_uri&scope={scopes.replace(' ','%20')}" => gives code for you to use to get the refresh token which you will refresh to get the access token
 */
 #include "header.h"
+#include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 
 // get the token wanted from json file
-void get_token(){
-
+std::string get_token(std::string token_type){
+    std::ifstream file("tokens.json");
+    nlohmann::json data;
+    file >> data;
+    file.close();
+    std::string token_wanted = data[token_type];
+    return token_wanted;
 }
 
 // replace value of key from json file 
-void write_token(){
+int write_token(std::string token_type, std::string value_wanted){
+    std::ifstream file("tokens.json");
+    nlohmann::json data;
+    file >> data;
+    file.close();
 
+    data[token_type] = value_wanted;
+
+
+    std::ofstream f("tokens.json");
+    f << data.dump(4); // Use dump function to format with indentation
+    f.close();
+    return 0;
 } 
 
 
@@ -58,12 +77,21 @@ void playback_state(){
 
 }
 
+
+//get all liked songs, organise them to unique albums
 void get_liked_albums(){
 
 }
 
 
+
+
 int main(){
+    std::cout << "access: " << write_token("access_token","d") << "\n";
+    std::cout << "refresh: " << write_token("refresh_token","c") << "\n";
+    std::cout << "client_id: " << write_token("client_id","b") << "\n";
+    std::cout << "client_secret: " << write_token("client_secret","a") << "\n";
 }
+
 
 
