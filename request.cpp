@@ -26,13 +26,25 @@ std::string replace_spaces(const std::string& input) {
 }
 
 
-nlohmann::json get_request(std::string url){
+nlohmann::json get_request(std::string url, bool header){
+    std::stringstream auth_header; 
+
     CURL* curl;
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
     if (curl) {
         // Set the target URL
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        
+        if (header == true) {
+            // Set the headers
+            struct curl_slist* headers = nullptr;
+            std::string access = "Authorization: Bearer " + get_token("access_token");
+
+            headers = curl_slist_append(headers, access.c_str());
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        }
 
         // Set the callback function to handle received data 
         std::string response;
@@ -40,8 +52,7 @@ nlohmann::json get_request(std::string url){
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
         // Perform the GET request
         CURLcode res = curl_easy_perform(curl);
-        // Check for errors
-
+    
         // Get the HTTP response code
         long httpCode = 0;
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);

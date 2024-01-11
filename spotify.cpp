@@ -71,26 +71,24 @@ void get_tokens(std::string code){
         write_token("access_token",result["access_token"]);
         write_token("refresh_token",result["refresh_token"]);
     }
-    //std::cout << result << "\n";
 }
 
-// use refresh token to get access token 
+// use refresh token to get new access token 
 void refresh_access(){
     std::stringstream params; 
-
     params << "grant_type=refresh_token&refresh_token=" << get_token("refresh_token") << "&client_id=" << get_token("client_id") << "&client_secret=" << get_token("client_secret");
     nlohmann::json result =  post_request("https://accounts.spotify.com/api/token",params.str());
     if (result.find("error") == result.end()){
         std::cout << result << "\n";           
         write_token("access_token",result["access_token"]);
     }
-
 }
 
 
 // playback state 
-void playback_state(){
-
+void playback_state(){    
+    nlohmann::json results = get_request("https://api.spotify.com/v1/me/player",true);
+    std::cout << results << "\n";
 }
 
 
@@ -117,7 +115,7 @@ int main(){
 
     // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
     refresh_access();
-
+    playback_state();
     }
 
 
