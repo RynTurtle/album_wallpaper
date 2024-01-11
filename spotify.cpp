@@ -75,7 +75,15 @@ void get_tokens(std::string code){
 }
 
 // use refresh token to get access token 
-void third(){
+void refresh_access(){
+    std::stringstream params; 
+
+    params << "grant_type=refresh_token&refresh_token=" << get_token("refresh_token") << "&client_id=" << get_token("client_id") << "&client_secret=" << get_token("client_secret");
+    nlohmann::json result =  post_request("https://accounts.spotify.com/api/token",params.str());
+    if (result.find("error") == result.end()){
+        std::cout << result << "\n";           
+        write_token("access_token",result["access_token"]);
+    }
 
 }
 
@@ -95,14 +103,22 @@ void get_liked_albums(){
 
 
 int main(){
+    // if there isnt tokens.json then create it 
 
-    // if there isnt any refresh token then 
-    first();
+    // if there isnt a client secret and client id then you cant do these, print "please add client id and secret from your dashboard"
 
-    //then get refresh using code in url  
-    second("AQBIt-V5NQ_e7aO_n4YAdNjAUg4ON-ZOZxbO4alWjnv65KxWKI9zglhKXmL8K0JNIAvm0l1cKG0uCa3hy1i-Wwj_9FU02MoufkbHxO9OmLVouVqOQAbmoiHs_wPuiFobuNgL6cHxoblSA09N6P6Ybvmmxkm5domYqDaJ7-jgtboGQmel922geZHC54o4ENB1m52_Fx2wmlydzjhW-6oKFpaKcnSAwpSf1b5rlpn6nA");
+    // 1. if there isnt any refresh token then 
+        //print link to get code 
+        //first();
 
-}
+    // 2. prompt user to copy paste the code into console 
+    //  get_tokens();
+
+
+    // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
+    refresh_access();
+
+    }
 
 
 
