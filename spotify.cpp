@@ -92,11 +92,32 @@ void playback_state(){
 }
 
 
-//get all liked songs, organise them to unique albums
-void get_liked_albums(){
+//get all liked songs
+std::vector<nlohmann::json> get_liked_songs(){
+    // need to paginate to end of results 
+    int page = 0;
+    bool next_page = true;
+    std::vector<nlohmann::json> data; //[{items:[1,2,3]},{items:[1,2,3]}]
+    while (next_page  == true){
+        nlohmann::json results = get_request("https://api.spotify.com/v1/me/tracks?limit=50&offset=" + std::to_string(page * 50),true);
+        std::cout << results["items"].back() << "\n";
+        if (results["next"] == NULL){
+            next_page = false; 
+        }   
+        data.insert(data.end(), results);
+        ++page;
+    }
+    return data;
 
 }
 
+
+//organises them to unique albums
+void get_unique_albums(){
+    std::vector<nlohmann::json> liked;
+
+
+} 
 
 
 
@@ -115,7 +136,7 @@ int main(){
 
     // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
     refresh_access();
-    playback_state();
+    get_liked_songs();
     }
 
 
