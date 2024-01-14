@@ -95,14 +95,17 @@ void playback_state(){
 //get all liked songs
 std::vector<nlohmann::json> get_liked_songs(){
     // need to paginate to end of results 
-    int page = 0;
+    int page = 14;
     bool next_page = true;
     std::vector<nlohmann::json> data; //[{items:[1,2,3]},{items:[1,2,3]}]
     while (next_page  == true){
         nlohmann::json results = get_request("https://api.spotify.com/v1/me/tracks?limit=50&offset=" + std::to_string(page * 50),true);
         std::cout << "offset: " << results["offset"] << " total: " << results["total"]  << "\n";
-        //std::cout << results["items"].back() << "\n";
-        data.insert(data.end(), results);
+        //std::cout << results["items"].back() << "\n"
+        if (results["items"].size() > 0){
+            data.insert(data.end(), results);
+        }
+
         if (results["offset"] > results["total"]){
             next_page = false; 
         }   
@@ -113,9 +116,9 @@ std::vector<nlohmann::json> get_liked_songs(){
 
 }
 
-bool is_in( std::vector<std::unordered_map<std::string, std::string>> list_of_dicts,std::string key, std::string value){
-    for (auto f: list_of_dicts){
-        if (f[key] == value){
+bool is_in_vec_dics(std::vector<std::unordered_map<std::string, std::string>> list_of_dicts,std::string key, std::string value){
+    for (auto d: list_of_dicts){
+        if (d[key] == value){
             return true;
         }
 
@@ -125,34 +128,37 @@ bool is_in( std::vector<std::unordered_map<std::string, std::string>> list_of_di
 
 
 //organises them to unique albums
-void get_unique_albums(){
+std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
     std::vector<std::unordered_map<std::string, std::string>> unique_albums;
-
     std::vector<nlohmann::json> liked = get_liked_songs();
     for (auto page : liked){
         for (auto data : page["items"]){
             std::string album_name = data["track"]["album"]["name"];
             std::string album_url = data["track"]["album"]["images"][0]["url"];
-            if (is_in(unique_albums,"name",album_name) == false){
+            std::string artist =  data["track"]["artists"][0]["name"];
+            if (is_in_vec_dics(unique_albums,"name",album_name) == false){
                 // name is unique
                 std::unordered_map<std::string, std::string> album;
                 album["name"] = album_name;
                 album["image"] = album_url;
+                album["artist"] = artist;
+                
                 unique_albums.push_back(album);
             }
+
+        
         }
     }
-    //std::cout << results["items"].back() << "\n";
 
-    for (auto d : unique_albums){
-        std::cout << d["name"] <<  " " << d["image"] << "\n";
-    }
+
+
+    return unique_albums;
 } 
 
 
 
 
-int main(){
+//int main(){
     // if there isnt tokens.json then create it 
 
     // if there isnt a client secret and client id then you cant do these, print "please add client id and secret from your dashboard"
@@ -166,10 +172,8 @@ int main(){
 
 
     // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
-    refresh_access();
-    get_unique_albums();
-    }
-
+  //  refresh_access();
+//}
 
 
 

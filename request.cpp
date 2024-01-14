@@ -28,7 +28,7 @@ std::string replace_spaces(const std::string& input) {
 
 nlohmann::json get_request(std::string url, bool header){
     std::stringstream auth_header; 
-
+    url = replace_spaces(url);
     CURL* curl;
     curl_global_init(CURL_GLOBAL_DEFAULT);
     curl = curl_easy_init();
@@ -59,6 +59,8 @@ nlohmann::json get_request(std::string url, bool header){
         std::cout << "HTTP Response Code: " << httpCode << std::endl;
         curl_easy_cleanup(curl);
                 
+        //std::cout << response << "\n";
+
         // parse json 
         nlohmann::json json = nlohmann::json::parse(response);
         return json;
@@ -71,7 +73,6 @@ nlohmann::json get_request(std::string url, bool header){
     // if nothing is returned then give an error 
     throw;
 }
-
 
 
 nlohmann::json post_request(std::string url,std::string paramaters){
