@@ -100,24 +100,55 @@ std::vector<nlohmann::json> get_liked_songs(){
     std::vector<nlohmann::json> data; //[{items:[1,2,3]},{items:[1,2,3]}]
     while (next_page  == true){
         nlohmann::json results = get_request("https://api.spotify.com/v1/me/tracks?limit=50&offset=" + std::to_string(page * 50),true);
-        std::cout << results["items"].back() << "\n";
-        if (results["next"] == NULL){
+        std::cout << "offset: " << results["offset"] << " total: " << results["total"]  << "\n";
+        //std::cout << results["items"].back() << "\n";
+        data.insert(data.end(), results);
+        if (results["offset"] > results["total"]){
             next_page = false; 
         }   
-        data.insert(data.end(), results);
+        
         ++page;
     }
     return data;
 
 }
 
+bool is_in( std::vector<std::unordered_map<std::string, std::string>> list_of_dicts,std::string key, std::string value){
+    for (auto f: list_of_dicts){
+        if (f[key] == value){
+            return true;
+        }
+
+    }
+    return false;
+}
+
 
 //organises them to unique albums
 void get_unique_albums(){
-    std::vector<nlohmann::json> liked;
+    std::vector<std::unordered_map<std::string, std::string>> unique_albums;
 
+    std::vector<nlohmann::json> liked = get_liked_songs();
+    for (auto page : liked){
+        for (auto data : page["items"]){
+            std::string album_name = data["track"]["album"]["name"];
+            std::string album_url = data["track"]["album"]["images"][0]["url"];
+            if (is_in(unique_albums,"name",album_name) == false){
+                // name is unique
+                std::unordered_map<std::string, std::string> album;
+                album["name"] = album_name;
+                album["image"] = album_url;
+                unique_albums.push_back(album);
+            }
+        }
+    }
+    //std::cout << results["items"].back() << "\n";
 
+    for (auto d : unique_albums){
+        std::cout << d["name"] <<  " " << d["image"] << "\n";
+    }
 } 
+
 
 
 
@@ -136,8 +167,9 @@ int main(){
 
     // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
     refresh_access();
-    get_liked_songs();
+    get_unique_albums();
     }
+
 
 
 
