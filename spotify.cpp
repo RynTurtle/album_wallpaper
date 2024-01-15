@@ -158,23 +158,35 @@ std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
 
 
 
-
-//int main(){
-    // if there isnt tokens.json then create it 
-
-    // if there isnt a client secret and client id then you cant do these, print "please add client id and secret from your dashboard"
-
-    // 1. if there isnt any refresh token then 
-        //print link to get code 
-        //first();
-
-    // 2. prompt user to copy paste the code into console 
-    //  get_tokens();
-
-
-    // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
-  //  refresh_access();
-
+/*
+couldn't find: a different kind of human ÔÇô step 2
+couldn't find: yours truly, angry mob
+couldn't find: inside in / inside out
+couldn't find: b'day deluxe edition
+couldn't find: man on the moon: the end of day (deluxe)
+couldn't find: beyonc├ë [platinum edition]
+couldn't find: mm...food
+couldn't find: straight no chaser (ealbum)
+couldn't find: r&g (rhythm & gangsta): the masterpiece
+couldn't find: unapologetic (deluxe)
+couldn't find: anjunabeats pres. super8 & tab 01
+couldn't find: nothing but the beat ultimate
+couldn't find: clarity (deluxe)
+couldn't find: exodus
+couldn't find: rastaman vibration
+couldn't find: kaya - deluxe edition
+couldn't find: ready to die (the remaster; 2015 remaster)
+couldn't find: life after death (2014 remastered edition)
+couldn't find: the love movement
+couldn't find: r u still down? [remember me]
+couldn't find: tha blue carpet treatment
+couldn't find: trip at knight (complete edition)
+couldn't find: the blueprint (explicit version)
+couldn't find: g i r l
+couldn't find: strictly 4 my n.i.g.g.a.z...
+couldn't find: black panther the album music from and inspired by
+couldn't find: man on the moon: the end of day (int'l version)
+*/
 
 
 
