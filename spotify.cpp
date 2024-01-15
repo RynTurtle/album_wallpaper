@@ -24,7 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <nlohmann/json.hpp>
-
+#include <variant>  
 
 // get the token wanted from json file
 std::string get_token(std::string token_type){
@@ -95,7 +95,7 @@ void playback_state(){
 //get all liked songs
 std::vector<nlohmann::json> get_liked_songs(){
     // need to paginate to end of results 
-    int page = 14;
+    int page = 5;
     bool next_page = true;
     std::vector<nlohmann::json> data; //[{items:[1,2,3]},{items:[1,2,3]}]
     while (next_page  == true){
@@ -126,7 +126,6 @@ bool is_in_vec_dics(std::vector<std::unordered_map<std::string, std::string>> li
     return false;
 }
 
-
 //organises them to unique albums
 std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
     std::vector<std::unordered_map<std::string, std::string>> unique_albums;
@@ -135,10 +134,12 @@ std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
         for (auto data : page["items"]){
             std::string album_name = data["track"]["album"]["name"];
             std::string album_url = data["track"]["album"]["images"][0]["url"];
-            std::string artist =  data["track"]["artists"][0]["name"];
+            std::string artist =  data["track"]["album"]["artists"][0]["name"];
+            std::string album_type = data["track"]["album"]["album_type"];
             if (is_in_vec_dics(unique_albums,"name",album_name) == false){
                 // name is unique
                 std::unordered_map<std::string, std::string> album;
+                album["album_type"] = album_type;
                 album["name"] = album_name;
                 album["image"] = album_url;
                 album["artist"] = artist;
@@ -173,7 +174,9 @@ std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
 
     // then your able to use the api, if you get an error and the error is because the token isnt refreshed then refresh it using
   //  refresh_access();
-//}
+
+
+
 
 
 
