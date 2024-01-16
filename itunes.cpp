@@ -82,7 +82,23 @@ class Itunes {
         }
 
 
+    std::string removeBrackets(const std::string& input) {
+        std::string result;
+        bool insideBracket = false;
 
+        for (char c : input) {
+            if (c == '(') {
+                insideBracket = true;
+            } else if (c == ')') {
+                insideBracket = false;
+            } else if (!insideBracket) {
+                if (c == '['){c = '(';};
+                if (c == ']'){c = ')';}; 
+                result += c;
+            }
+        }
+        return result;
+    }
 
     /* reasons why it cant find the album:
         1. spotify has added brackets for special anniversary albums 
@@ -96,18 +112,23 @@ class Itunes {
         possible_varients.insert(possible_varients.end(), {
             spotify_album_name,
             spotify_album_name + " - single",
-            spotify_album_name + " - ep" 
-
+            spotify_album_name + " - ep",
+            removeBrackets(spotify_album_name), // need to remove the last space which gets added from when you remove the brackets
+            removeBrackets(spotify_album_name) + "(deluxe version)",
+            removeBrackets(spotify_album_name) + "(deluxe edition)",
+            removeBrackets(spotify_album_name) + "(deluxe)",
         });
 
         for (std::string album_varients: possible_varients){
-
+            //std::cout << album_varients << "\n";
             auto is_in = (is_in_json(itunes_artist_albums,"collectionName",album_varients));
             if  (is_in !=  false){
                 return is_in;
             }
         }
         std::cout << "couldn't find: " << spotify_album_name << "\n";
+        //std::cout << itunes_artist_albums << "\n";
+
         return 0;
     }
 
@@ -118,27 +139,27 @@ int main() {
 
 
     refresh_access();
-    std::vector<std::unordered_map<std::string, std::string>> album = get_unique_albums();
-    for (auto album : album) {        
-        int artist_id = Itunes().get_id(album["artist"]);
-        if (artist_id == 1){
-            std::cout << "Couldn't find artist: "  << album["artist"] << "\n";
+    std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
+    for (auto album : a) {    
+
+        if (album["album_type"] == "album"){
+            int artist_id = Itunes().get_id(album["artist"]);
+            if (artist_id == 1){
+                std::cout << "Couldn't find artist: "  << album["artist"] << "\n";
+            }else{
+
+                auto albums = Itunes().get_albums(std::to_string(artist_id));
+                
+                Itunes().find_album(album["name"],albums);
+            } 
         }else{
-            //std::cout << album["name"] << " " << album["artist"] << " id: " << artist_id << "\n";
-
-            auto albums = Itunes().get_albums(std::to_string(artist_id));
-            std::cout << Itunes().find_album(album["name"],albums) << "\n";
-        } 
-        
-
+            std::cout << album["album_type"] << "\n";
+        }
 
 
     }
 
     /*
-    int artist_id = Itunes().get_id("Kendrick Lamar");
-    auto albums = Itunes().get_albums(std::to_string(artist_id));
-    Itunes().find_album("Mr. Morale & The Big Steppers",albums);
-    //std::cout << u << "\n";
+    remember u could search for release date as a final measure 
     */
 };
