@@ -158,46 +158,6 @@ std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
 
 
 
-/*
-spotify                                                                            itunes 
-
-couldn't find: a different kind of human ÔÇô step 2                                A Different Kind Of Human (Step II)
-couldn't find: yours truly, angry mob                                              Yours Truly, Angry Mob (Deluxe)
-couldn't find: inside in / inside out                                              Inside In, Inside Out (15th Anniversary Deluxe) |  Inside In / Inside Out (Bonus Track Version)
-couldn't find: b'day deluxe edition                                                B'Day (Deluxe Edition)                            
-couldn't find: man on the moon: the end of day (deluxe)                            Man On the Moon: The End of Day |  Man On the Moon: The End of Day (Expanded Version) | Man On the Moon: The End of Day (Deluxe Version)
-couldn't find: beyonc├ë [platinum edition]                                         BEYONCÉ (Platinum Edition)
-couldn't find: mm...food                                                           MM..FOOD
-couldn't find: straight no chaser (ealbum)                                         Straight No Chaser (Deluxe Version)
-couldn't find: r&g (rhythm & gangsta): the masterpiece                             R&G (Rhythm & Gangsta) - The Masterpiece 
-couldn't find: unapologetic (deluxe)                                               Unapologetic | Unapologetic (Deluxe Version)
-couldn't find: anjunabeats pres. super8 & tab 01                                    
-couldn't find: nothing but the beat ultimate                                       Nothing But the Beat Ultimate
-couldn't find: clarity (deluxe)                                                    clarity | Clarity (Deluxe Version)
-couldn't find: exodus                                                              Exodus (Deluxe Edition)
-couldn't find: rastaman vibration                                           
-couldn't find: kaya - deluxe edition                                               Kaya (2013 Remaster)
-couldn't find: ready to die (the remaster; 2015 remaster)                          Ready to Die (The Remaster)
-couldn't find: life after death (2014 remastered edition)                          Life After Death (2014 Remaster)
-couldn't find: the love movement                                                   The Love Movement (Deluxe Edition)
-couldn't find: r u still down? [remember me]
-couldn't find: tha blue carpet treatment
-couldn't find: trip at knight (complete edition)
-couldn't find: the blueprint (explicit version)                                    The Blueprint 
-couldn't find: g i r l
-couldn't find: strictly 4 my n.i.g.g.a.z...
-couldn't find: black panther the album music from and inspired by                   Black Panther: The Album
-couldn't find: man on the moon: the end of day (int'l version)                      Man on the Moon: The End of Day
-
-
-What can I do?
-    
-    remove brackets  anything inside brackets for spotify 
-    add itunes specific possible bracketed language to the spotify to try to match itunes? 
-
-
-
-*/
 
 
 

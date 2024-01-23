@@ -101,16 +101,15 @@ class Itunes {
         if (result.back() ==  *" "){
             // remove any spaces 
             result.pop_back();
-            std::cout << "removed space on string:" << result << "!"  << "\n";
+            //std::cout << "removed space on string:" << result << "!"  << "\n";
         }
 
         return result;
     }
 
     /* reasons why it cant find the album:
-        1. spotify has added brackets for special anniversary albums 
-        2. the single release was on spotify but not on apple
-        3. completely different album name formats  e.g. sptotify = Black Panther The Album Music From And Inspired By, apple =  Black Panther: The Album
+        15th Anniversary Deluxe - specific year anniversary deluxe, not sure how to battle this one 
+
     */
     nlohmann::json find_album(std::string spotify_album_name,nlohmann::json itunes_artist_albums){
         spotify_album_name = lowercase(spotify_album_name);
@@ -121,13 +120,15 @@ class Itunes {
             spotify_album_name + " - single",
             spotify_album_name + " - ep",
             removeBrackets(spotify_album_name), // need to remove the last space which gets added from when you remove the brackets
-            removeBrackets(spotify_album_name) + "(deluxe version)",
-            removeBrackets(spotify_album_name) + "(deluxe edition)",
-            removeBrackets(spotify_album_name) + "(deluxe)",
+            removeBrackets(spotify_album_name) + " (deluxe version)",
+            removeBrackets(spotify_album_name) + " (deluxe Edition)",
+            removeBrackets(spotify_album_name) + " (deluxe)",
+            removeBrackets(spotify_album_name) + " (The Remaster)",
+
         });
 
         for (std::string album_varients: possible_varients){
-            std::cout << album_varients << "\n";
+            //std::cout << album_varients << "\n";
             auto is_in = (is_in_json(itunes_artist_albums,"collectionName",album_varients));
             if  (is_in !=  false){
                 return is_in;
@@ -167,6 +168,27 @@ int main() {
     }
 
     /*
-    remember u could search for release date as a final measure 
+    before - 28 
+
+ a different kind of human ÔÇô step 2
+couldn't find: b'day deluxe edition
+couldn't find: r&g (rhythm & gangsta): the masterpiece
+couldn't find: anjunabeats pres. super8 & tab 01
+couldn't find: one more love
+couldn't find: nothing but the beat ultimate
+couldn't find: natty dread
+couldn't find: kaya - deluxe edition
+couldn't find: confrontation
+couldn't find: life after death (2014 remastered edition)
+couldn't find: tha blue carpet treatment
+couldn't find: trilogy
+couldn't find: kamikaze
+couldn't find: g i r l
+couldn't find: the documentary
+couldn't find: strictly 4 my n.i.g.g.a.z...
+couldn't find: the boy who flew to the moon (vol. 1)
+couldn't find: black panther the album music from and inspired by
+
+    after -  18
     */
 };
