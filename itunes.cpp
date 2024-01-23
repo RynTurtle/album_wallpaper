@@ -97,6 +97,13 @@ class Itunes {
                 result += c;
             }
         }
+
+        if (result.back() ==  *" "){
+            // remove any spaces 
+            result.pop_back();
+            std::cout << "removed space on string:" << result << "!"  << "\n";
+        }
+
         return result;
     }
 
@@ -120,7 +127,7 @@ class Itunes {
         });
 
         for (std::string album_varients: possible_varients){
-            //std::cout << album_varients << "\n";
+            std::cout << album_varients << "\n";
             auto is_in = (is_in_json(itunes_artist_albums,"collectionName",album_varients));
             if  (is_in !=  false){
                 return is_in;
