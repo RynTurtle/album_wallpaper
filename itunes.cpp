@@ -15,17 +15,53 @@ std::string lowercase(std::string s){
 }
 
 
-nlohmann::json is_in_json(nlohmann::json list_of_dicts,std::string key, std::string value){
+
+// comparing the second sentance to the first one (spotify to apples)
+// only downside to this is that if there is multiple versions of an album with different covers and you want a specific spotify album cover theres a chance you dont get the "edition" you want
+int compare_album_names(std::string spotify, std::string itunes){
+        spotify = lowercase(spotify);
+        itunes = lowercase(itunes);
+        int success_rate = 0; // how many characters are the same 
+        
+        
+        size_t minimum_amount = std::max(spotify.length(), itunes.length());
+
+        for (size_t i = 0; i < minimum_amount; ++i) {
+            if (spotify[i] == itunes[i]) {
+                success_rate++;
+            }
+            
+        }
+        float percentage = static_cast<float>(success_rate) / minimum_amount * 100;
+        return percentage;
+}
+
+
+nlohmann::json search(nlohmann::json list_of_dicts,std::string key, std::string value){
     int i = 0;
+    std::vector<nlohmann::json> possible;
+    
     for (auto d: list_of_dicts){
         if  (d.contains(key)){
-            if (lowercase(d[key]) == lowercase(value)){
-                return d;
+            auto itunes_album = lowercase(d[key]); 
+            auto spotify_album = lowercase(value);
+            // find based by accuracy instead of common replaced words 
+            auto percentage= compare_album_names(spotify_album,itunes_album);
+            
+            
+            if (spotify_album == "random access memories"){
+                std::cout << spotify_album<< " " << itunes_album << " " << percentage << "\n"; 
+
             }
+
+            d["percentage"] = percentage; 
+            possible.push_back(d);
         }
         i++;
     }
-    return false;
+
+
+    return possible;
 }
 
 
@@ -107,50 +143,45 @@ class Itunes {
         return result;
     }
 
-    /* reasons why it cant find the album:
-        15th Anniversary Deluxe - specific year anniversary deluxe, not sure how to battle this one 
 
-    */
-    nlohmann::json find_album(std::string spotify_album_name,nlohmann::json itunes_artist_albums){
+    std::vector<nlohmann::json> find_album(std::string spotify_album_name,nlohmann::json itunes_artist_albums){
         spotify_album_name = lowercase(spotify_album_name);
-        std::vector<std::string> possible_varients;
-
-        possible_varients.insert(possible_varients.end(), {
-            spotify_album_name,
-            spotify_album_name + " - single",
-            spotify_album_name + " - ep",
-            removeBrackets(spotify_album_name), // need to remove the last space which gets added from when you remove the brackets
-            removeBrackets(spotify_album_name) + " (deluxe version)",
-            removeBrackets(spotify_album_name) + " (deluxe Edition)",
-            removeBrackets(spotify_album_name) + " (deluxe)",
-            removeBrackets(spotify_album_name) + " (The Remaster)",
-
-        });
-
-        for (std::string album_varients: possible_varients){
+        std::vector<std::string> spotify_possible_varients;
+    
+        std::vector<nlohmann::json> all_results; 
+//        for (std::string spotify_album_varients: spotify_possible_varients){
             //std::cout << album_varients << "\n";
-            auto is_in = (is_in_json(itunes_artist_albums,"collectionName",album_varients));
-            if  (is_in !=  false){
-                return is_in;
-            }
-        }
-        std::cout << "couldn't find: " << spotify_album_name << "\n";
-        //std::cout << itunes_artist_albums << "\n";
+            auto potential_result = (search(itunes_artist_albums,"collectionName",spotify_album_name));
+            if (potential_result.size() > 0){
+                for (auto a : potential_result){
+                    if (all_results.empty()){
+                        all_results.push_back(a);
+                    }
 
-        return 0;
+
+                    auto  b = all_results.back()["percentage"];
+                    //std::cout << " " << a["percentage"] << " " <<  b << " " << "\n";
+                    if (a["percentage"] > b){
+                        all_results.pop_back(); 
+                        all_results.push_back(a);
+                         
+                    }                                  
+                }   
+            }
+        //std::cout << all_results << "\n";
+        return all_results;
     }
 
 };
 
 
 int main() {
-
-
     refresh_access();
     std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
     for (auto album : a) {    
-
         if (album["album_type"] == "album"){
+            //std::cout << album["name"] << "\n";
+
             int artist_id = Itunes().get_id(album["artist"]);
             if (artist_id == 1){
                 std::cout << "Couldn't find artist: "  << album["artist"] << "\n";
@@ -158,7 +189,15 @@ int main() {
 
                 auto albums = Itunes().get_albums(std::to_string(artist_id));
                 
-                Itunes().find_album(album["name"],albums);
+                auto find = Itunes().find_album(album["name"],albums);
+                if (find.size() > 0){
+                    //std::cout << find.size() << "\n"; 
+                    auto u = Itunes().uncompressed(find[0]);
+                    std::cout << album["name"] << " " << find[0]["collectionName"] << " " << album["image"] << " " << u.str() << " "  << "\n";
+                }else{
+                    std::cout << "couldn't find " << album["name"] << "\n";
+
+                }
             } 
         }else{
             std::cout << album["album_type"] << "\n";
@@ -166,29 +205,4 @@ int main() {
 
 
     }
-
-    /*
-    before - 28 
-
- a different kind of human ÔÇô step 2
-couldn't find: b'day deluxe edition
-couldn't find: r&g (rhythm & gangsta): the masterpiece
-couldn't find: anjunabeats pres. super8 & tab 01
-couldn't find: one more love
-couldn't find: nothing but the beat ultimate
-couldn't find: natty dread
-couldn't find: kaya - deluxe edition
-couldn't find: confrontation
-couldn't find: life after death (2014 remastered edition)
-couldn't find: tha blue carpet treatment
-couldn't find: trilogy
-couldn't find: kamikaze
-couldn't find: g i r l
-couldn't find: the documentary
-couldn't find: strictly 4 my n.i.g.g.a.z...
-couldn't find: the boy who flew to the moon (vol. 1)
-couldn't find: black panther the album music from and inspired by
-
-    after -  18
-    */
-};
+}
