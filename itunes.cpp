@@ -38,21 +38,22 @@ int compare_album_names(std::string spotify, std::string itunes){
 
 
 nlohmann::json search(nlohmann::json list_of_dicts,std::string key, std::string value){
-    int i = 0;
     std::vector<nlohmann::json> possible;
-    
     for (auto d: list_of_dicts){
         if  (d.contains(key)){
             auto itunes_album = lowercase(d[key]); 
             auto spotify_album = lowercase(value);
             // find based by accuracy instead of common replaced words 
-            auto percentage= compare_album_names(spotify_album,itunes_album);
-            
-        
-            d["percentage"] = percentage; 
-            possible.push_back(d);
+
+
+        if  (itunes_album.find("single") == std::string::npos &&
+            itunes_album.find("ep") == std::string::npos &&
+            itunes_album.find("compilation") == std::string::npos){
+                auto percentage= compare_album_names(spotify_album,itunes_album);        
+                d["percentage"] = percentage; 
+                possible.push_back(d);
+            }
         }
-        i++;
     }
 
 
