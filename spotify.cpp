@@ -95,7 +95,7 @@ void playback_state(){
 //get all liked songs
 std::vector<nlohmann::json> get_liked_songs(){
     // need to paginate to end of results 
-    int page = 5;
+    int page = 0;
     bool next_page = true;
     std::vector<nlohmann::json> data; //[{items:[1,2,3]},{items:[1,2,3]}]
     while (next_page  == true){

@@ -48,12 +48,7 @@ nlohmann::json search(nlohmann::json list_of_dicts,std::string key, std::string 
             // find based by accuracy instead of common replaced words 
             auto percentage= compare_album_names(spotify_album,itunes_album);
             
-            
-            if (spotify_album == "random access memories"){
-                std::cout << spotify_album<< " " << itunes_album << " " << percentage << "\n"; 
-
-            }
-
+        
             d["percentage"] = percentage; 
             possible.push_back(d);
         }
@@ -179,7 +174,8 @@ int main() {
     refresh_access();
     std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
     for (auto album : a) {    
-        if (album["album_type"] == "album"){
+        // the reason why i'm only searching for albums is because sometimes spotify and apple might have different releases for singles, sometimes spotify might classify something as a single whilst apple hasnt got it as a single 
+        if (album["album_type"] == "album"){ 
             //std::cout << album["name"] << "\n";
 
             int artist_id = Itunes().get_id(album["artist"]);
