@@ -11,3 +11,13 @@ nlohmann::json is_in_json(nlohmann::json list_of_dicts,std::string key, std::str
 
 std::vector<std::unordered_map<std::string, std::string>> get_unique_albums();
 void refresh_access();
+
+
+class Itunes{
+    public:
+        int get_id(std::string artist);
+        auto get_albums(std::string artist_id);
+        std::stringstream uncompressed(nlohmann::json album_data);
+        std::vector<nlohmann::json> find_album(std::string spotify_album_name,nlohmann::json itunes_artist_albums);
+};
+

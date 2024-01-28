@@ -169,37 +169,3 @@ class Itunes {
     }
 
 };
-
-
-int main() {
-    refresh_access();
-    std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
-    for (auto album : a) {    
-        // the reason why i'm only searching for albums is because sometimes spotify and apple might have different releases for singles, sometimes spotify might classify something as a single whilst apple hasnt got it as a single 
-        if (album["album_type"] == "album"){ 
-            //std::cout << album["name"] << "\n";
-
-            int artist_id = Itunes().get_id(album["artist"]);
-            if (artist_id == 1){
-                std::cout << "Couldn't find artist: "  << album["artist"] << "\n";
-            }else{
-
-                auto albums = Itunes().get_albums(std::to_string(artist_id));
-                
-                auto find = Itunes().find_album(album["name"],albums);
-                if (find.size() > 0){
-                    //std::cout << find.size() << "\n"; 
-                    auto u = Itunes().uncompressed(find[0]);
-                    std::cout << album["name"] << " " << find[0]["collectionName"] << " " << album["image"] << " " << u.str() << " "  << "\n";
-                }else{
-                    std::cout << "couldn't find " << album["name"] << "\n";
-
-                }
-            } 
-        }else{
-            std::cout << album["album_type"] << "\n";
-        }
-
-
-    }
-}
