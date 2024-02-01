@@ -56,13 +56,13 @@ int write_token(std::string token_type, std::string value_wanted){
 std::string redirect_uri = "http://localhost:8888/callback";
 
 // get CODE= value from giving application permissions, will send you to the spotify site to give permission if you already gave permission it will just go straight to the redirect uri  
-void first(){
+void Spotify::authorize_url(){
     std::string scopes = replace_spaces("user-library-read user-read-playback-state");
     std::cout <<  "https://accounts.spotify.com/authorize?client_id=" << get_token("client_id")  << "&response_type=code&redirect_uri=" << redirect_uri << "&scope=" <<  scopes << "\n";
 }
 
 // use code that was received after giving permission to app to get refresh token 
-void get_tokens(std::string code){
+void Spotify::get_tokens(std::string code){
     std::stringstream params;
     params<< "grant_type=authorization_code&code=" << code << "&redirect_uri=" << redirect_uri << "&client_id=" << get_token("client_id") << "&client_secret="<< get_token("client_secret");
     nlohmann::json result =  post_request("https://accounts.spotify.com/api/token",params.str());
