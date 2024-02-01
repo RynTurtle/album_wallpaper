@@ -1,5 +1,6 @@
 #include "header.h"
 #include <iostream>
+#include <filesystem>
 
 
 // todo - will need to add a search for singles/compilation/ep function, not sure if i still want this feature but its here if i change my mind  
@@ -26,6 +27,26 @@ void download_url(std::string url){
             filename.jpg
 
     */
+    if (!std::filesystem::exists("./Wallpapers")){
+        std::filesystem::create_directory("./Wallpapers");
+
+    }
+
+    if (!std::filesystem::exists("./Wallpapers/Temp")){
+        std::filesystem::create_directory("./Wallpapers/Temp");
+
+    }
+
+    if (!std::filesystem::exists("./Wallpapers/Finished")){
+        std::filesystem::create_directory("./Wallpapers/Finished");        
+    }
+
+
+}
+
+
+void most_liked_albums(){ // displays albums with the most amount of likes (how many times they appear in the liked list) maybe show the top 
+
 }
 
 
@@ -59,25 +80,15 @@ void random_albums(int sleep_amount){
 
 
 
-
-
-
-
-
-void main() {
+int main() {
     /*  check if spotify has the right credentials in the file 
         if not then start the process for the user to add in their credentials input() and get auth tokens 
 
         create wallpaper folders if its not already created 
-        
-
-
-
     */
-
+    download_url("");
 
     while (true){
         random_albums(1);
     }
-
 }
