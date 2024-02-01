@@ -117,6 +117,49 @@ nlohmann::json post_request(std::string url,std::string paramaters){
         curl_easy_cleanup(curl);
         curl_slist_free_all(headers);
     }
+    
+    std::cout << "didnt return anything when making request for some reason";
     throw;
+
+}
+
+
+
+int download_url(std::string url, std::string image_path) {
+    // Initialize libcurl
+    CURL* curl = curl_easy_init();
+    if (curl) {
+        // Set the URL to download
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+        // Set the callback function to write received data into a string
+        std::string response;
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+
+        // Perform the request
+        CURLcode res = curl_easy_perform(curl);
+
+        // Check for errors
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        } else {
+            // Save the downloaded image to a file (e.g., "downloaded_image.jpg")
+            FILE* file = fopen(image_path.c_str(), "wb");
+            if (file) {
+                fwrite(response.c_str(), 1, response.size(), file);
+                fclose(file);
+                std::cout << "Image downloaded successfully." << std::endl;
+            } else {
+                std::cerr << "Error opening file for writing." << std::endl;
+            }
+        }
+
+        // Clean up
+        curl_easy_cleanup(curl);
+    } else {
+        std::cerr << "Error initializing libcurl." << std::endl;
+    }
+    return 0;
 
 }

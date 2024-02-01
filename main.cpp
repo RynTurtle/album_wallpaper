@@ -14,7 +14,7 @@ void change_wallpaper(std::string filename){
 }
 
 
-void download_url(std::string url){
+void download_wallpaper(std::string url,std::string wallpaper_name){
     /*  
     Wallpapers
         => Temp
@@ -41,7 +41,25 @@ void download_url(std::string url){
         std::filesystem::create_directory("./Wallpapers/Finished");        
     }
 
+    // adding .jpg because the file extension that apple gives can be something other than .jpg
+    wallpaper_name = wallpaper_name + ".jpg";
+    if (!std::filesystem::exists("./Wallpapers/Temp/" + wallpaper_name) && !std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
+        std::cout << "downloading album art into ./Wallpapers/Temp/" << wallpaper_name << "\n";
+        download_url(url,"./Wallpapers/Temp/" + wallpaper_name);
+        // download url into temp because its not in finished aswell 
 
+    if (!std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
+        std::cout << "downloading wallpaper using ffmpeg into ./Wallpapers/Finished/" << wallpaper_name << "\n";
+        // download ffmpeg wallpaper  
+        create_wallpaper(wallpaper_name)
+        ;
+        // remove file from temp folder 
+        
+        std::filesystem::remove("./Wallpapers/Temp/" + wallpaper_name);
+    }}
+
+
+    std::cout << wallpaper_name << "\n"; 
 }
 
 
@@ -53,6 +71,7 @@ void most_liked_albums(){ // displays albums with the most amount of likes (how 
 
 void random_albums(int sleep_amount){
     refresh_access();
+    //int i = 0;
     std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
     for (auto album : a) {    
         // the reason why i'm only searching for albums is because sometimes spotify and apple might have different releases for singles, sometimes spotify might classify something as a single whilst apple hasnt got it as a single 
@@ -67,6 +86,13 @@ void random_albums(int sleep_amount){
                 if (found.size() > 0){
                     auto u = Itunes().uncompressed(found[0]);
                     // change wallpaper 
+
+                    size_t last_slash = u.str().find_last_of('/');
+                    std::string wallpaper_name = u.str().substr(last_slash + 1);
+                    wallpaper_name = std::to_string(artist_id) + "-" + wallpaper_name;
+                    download_wallpaper(u.str(),wallpaper_name);
+
+
                     std::cout << album["name"] << " " << found[0]["collectionName"] << " " << album["image"] << " " << u.str() << " "  << "\n";
                 }else{
                     std::cout << "couldn't find " << album["name"] << "\n";
@@ -75,6 +101,7 @@ void random_albums(int sleep_amount){
         }
         // sleep
     }
+   // std::cout << "found " << i << " albums" << "\n";
 }
 
 
@@ -86,9 +113,8 @@ int main() {
 
         create wallpaper folders if its not already created 
     */
-    download_url("");
 
-    while (true){
-        random_albums(1);
-    }
+    //while (true){
+    random_albums(1);
+    //}
 }
