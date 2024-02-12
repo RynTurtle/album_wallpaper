@@ -49,7 +49,9 @@ nlohmann::json search(nlohmann::json list_of_dicts,std::string key, std::string 
 
             auto percentage= compare_album_names(spotify_album,itunes_album);        
             d["percentage"] = percentage; 
-            possible.push_back(d);
+            if (percentage > 10){
+                possible.push_back(d);
+            }
             
         }
     }
@@ -128,7 +130,7 @@ std::vector<nlohmann::json> Itunes::find_album(std::string spotify_album_name,nl
             }                                  
         }   
     }
-    //std::cout << all_results << "\n";
+    
     return all_results;
 }
 
