@@ -41,7 +41,8 @@ void download_wallpaper(std::string url,std::string wallpaper_name){
         std::filesystem::create_directory("./Wallpapers/Finished");        
     }
 
-    // adding .jpg because the file extension that apple gives can be something other than .jpg
+    //remove all file extensions that the image might contain .rgb/.png/etc 
+    wallpaper_name = wallpaper_name.substr(0,wallpaper_name.find("."));
     wallpaper_name = wallpaper_name + ".jpg";
     if (!std::filesystem::exists("./Wallpapers/Temp/" + wallpaper_name) && !std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
         std::cout << "downloading album art into ./Wallpapers/Temp/" << wallpaper_name << "\n";
@@ -51,10 +52,10 @@ void download_wallpaper(std::string url,std::string wallpaper_name){
     if (!std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
         std::cout << "downloading wallpaper using ffmpeg into ./Wallpapers/Finished/" << wallpaper_name << "\n";
         // download ffmpeg wallpaper  
-        create_wallpaper(wallpaper_name)
-        ;
+        create_wallpaper(wallpaper_name);
+
+
         // remove file from temp folder 
-        
         std::filesystem::remove("./Wallpapers/Temp/" + wallpaper_name);
     }}
 
@@ -71,8 +72,9 @@ void most_liked_albums(){ // displays albums with the most amount of likes (how 
 
 void random_albums(int sleep_amount){
     refresh_access();
-    //int i = 0;
     std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
+    // randomise the vectors contents 
+
     for (auto album : a) {    
         // the reason why i'm only searching for albums is because sometimes spotify and apple might have different releases for singles, sometimes spotify might classify something as a single whilst apple hasnt got it as a single 
         if (album["album_type"] == "album"){ 
@@ -101,7 +103,6 @@ void random_albums(int sleep_amount){
         }
         // sleep
     }
-   // std::cout << "found " << i << " albums" << "\n";
 }
 
 
