@@ -63,15 +63,38 @@ void download_wallpaper(std::string url,std::string wallpaper_name){
 }
 
 
+
 void most_liked_albums(){ // displays albums with the most amount of likes (how many times they appear in the liked list) maybe show the top 
 
 }
 
 
+
+void find_and_download(std::unordered_map<std::string, std::string> s_album, std::string wallpaper_name){
+    int artist_id = Itunes().get_id(s_album["artist"]);
+    if (artist_id == 1){
+        std::cout << "Couldn't find artist: "  << s_album["artist"] << "\n";   
+    }else{
+        std::cout << "getting album: " << "\n";
+        auto albums = Itunes().get_albums(std::to_string(artist_id));
+
+        std::cout << "searching for album: " << "\n";
+        auto found = Itunes().find_album(s_album["name"],albums);
+        if (found.size() > 0){
+            auto u = Itunes().uncompressed(found[0]);
+            download_wallpaper(u.str(),wallpaper_name);
+            std::cout << s_album["name"] << " " << found[0]["collectionName"] << " " << s_album["image"] << " " << u.str() <<  " " <<found[0]["percentage"]<< "% certain"  << "\n";
+        }else{
+            std::cout << "couldn't find " << s_album["name"] << "\n";
+        }
+    }
+}
+
+
+
 void random_albums(int sleep_amount){
     refresh_access();
     std::vector<std::unordered_map<std::string, std::string>> spotify_albums = get_unique_albums();
-   
     // Shuffle the vector
     std::random_device rd; // random seed
     std::mt19937 g(rd()); // uses seed to shuffle vector
@@ -79,30 +102,14 @@ void random_albums(int sleep_amount){
 
     for (auto s_album:spotify_albums){
         if (s_album["album_type"] == "album"){
-            std::cout <<  s_album["name"] << "\n";
-            int artist_id = Itunes().get_id(s_album["artist"]);
-            //std::cout << artist_id << "\n";
-            if (artist_id == 1){
-                std::cout << "Couldn't find artist: "  << s_album["artist"] << "\n";   
-            }else{
-                std::cout << "getting album: " << "\n";
-                auto albums = Itunes().get_albums(std::to_string(artist_id));
-
-                std::cout << "searching for album: " << "\n";
-                auto found = Itunes().find_album(s_album["name"],albums);
-                if (found.size() > 0){
-                    auto u = Itunes().uncompressed(found[0]);
-
-                    std::string wallpaper_name = s_album["artist_id"] + "-" + s_album["album_id"];
-                    download_wallpaper(u.str(),wallpaper_name);
-                    std::cout << s_album["name"] << " " << found[0]["collectionName"] << " " << s_album["image"] << " " << u.str() <<  " " <<found[0]["percentage"]<< "% certain"  << "\n";
-                }else{
-                    std::cout << "couldn't find " << s_album["name"] << "\n";
-                }
-
-                sleep(sleep_amount); 
+            std::string wallpaper_name = s_album["artist_id"] + "-" + s_album["album_id"];
+            if (!std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
+                find_and_download(s_album,wallpaper_name);
             }
-        } 
+            
+            // set wallpaper 
+            sleep(sleep_amount); 
+        }
     }
 
 }
