@@ -17,22 +17,28 @@ std::string lowercase(std::string s){
 
 
 // comparing the second sentance to the first one (spotify to apples)
-// only downside to this is that if there is multiple versions of an album with different covers and you want a specific spotify album cover theres a chance you dont get the "edition" you want
 int compare_album_names(std::string spotify, std::string itunes){
     spotify = lowercase(spotify);
     itunes = lowercase(itunes);
     int success_rate = 0; // how many characters are the same 
     
     
-    size_t minimum_amount = std::max(spotify.length(), itunes.length());
+    size_t minimum_amount = std::min(spotify.length(), itunes.length()); // finds the least amount of characters of the two words 
+    size_t maximum_amount = std::max(spotify.length(), itunes.length());
 
-    for (size_t i = 0; i < minimum_amount; ++i) {
-        if (spotify[i] == itunes[i]) {
-            success_rate++;
+    for (size_t i = 0; i < maximum_amount; ++i) {
+        if (i < minimum_amount){ 
+            if (spotify[i] == itunes[i]) {
+                success_rate++;
+            }
+        }else{ // extra words that one sentence doesnt have
+            success_rate--;
         }
-        
-    }
+    }    
     float percentage = static_cast<float>(success_rate) / minimum_amount * 100;
+    if (percentage < 0){
+        return 0;
+    }
     return percentage;
 }
 
@@ -41,15 +47,14 @@ nlohmann::json search(nlohmann::json list_of_dicts,std::string key, std::string 
     std::vector<nlohmann::json> possible;
     for (auto d: list_of_dicts){
         if  (d.contains(key)){
-            auto itunes_album = lowercase(d[key]); 
+            auto itunes_album = lowercase(d[key]);
             auto spotify_album = lowercase(value);
             // find based by accuracy instead of common replaced words 
 
             //std::cout << "itunes: "  << itunes_album << "spotify: " << spotify_album <<  "\n" << d << "\n";
-
             auto percentage= compare_album_names(spotify_album,itunes_album);        
             d["percentage"] = percentage; 
-            if (percentage > 10){
+            if (percentage > 50){
                 possible.push_back(d);
             }
             
@@ -93,6 +98,13 @@ nlohmann::json Itunes::get_albums(std::string artist_id){
         spotify doesnt do this
     */
     nlohmann::json results = get_request(url.str())["results"];
+
+    // remove the first result (its not an album) e.g. {"amgArtistId":2377309,"artistId":479756766,"artistLinkUrl":"https://music.apple.com/gb/artist/the-weeknd/479756766?uo=4","artistName":"The Weeknd","artistType":"Artist","primaryGenreId":15,"primaryGenreName":"R&B/Soul","wrapperType":"artist"}
+    if (!results.empty()) {
+        results.erase(results.begin());
+    }    
+
+    std::cout << url.str() << "\n";
     return results;
 }
 
@@ -114,7 +126,7 @@ std::stringstream Itunes::uncompressed(nlohmann::json album_data){
 std::vector<nlohmann::json> Itunes::find_album(std::string spotify_album_name,nlohmann::json itunes_artist_albums){
     spotify_album_name = lowercase(spotify_album_name);
     std::vector<std::string> spotify_possible_varients;
-    std::vector<nlohmann::json> all_results; 
+    std::vector<nlohmann::json> all_results;
     auto potential_result = search(itunes_artist_albums,"collectionName",spotify_album_name);
     if (potential_result.size() > 0){
         for (auto a : potential_result){
@@ -130,7 +142,6 @@ std::vector<nlohmann::json> Itunes::find_album(std::string spotify_album_name,nl
             }                                  
         }   
     }
-    
     return all_results;
 }
 
