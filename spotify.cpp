@@ -135,6 +135,12 @@ std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
             std::string album_name = data["track"]["album"]["name"];
             std::string album_url = data["track"]["album"]["images"][0]["url"];
             std::string artist =  data["track"]["album"]["artists"][0]["name"];
+
+            
+            
+            std::string artist_id = data["track"]["album"]["artists"][0]["id"];
+            std::string album_id = data["track"]["album"]["id"];
+
             std::string album_type = data["track"]["album"]["album_type"];
             if (is_in_vec_dics(unique_albums,"name",album_name) == false){
                 // name is unique
@@ -143,7 +149,8 @@ std::vector<std::unordered_map<std::string, std::string>> get_unique_albums(){
                 album["name"] = album_name;
                 album["image"] = album_url;
                 album["artist"] = artist;
-                
+                album["artist_id"] = artist_id;
+                album["album_id"] = album_id;
                 unique_albums.push_back(album);
             }
 

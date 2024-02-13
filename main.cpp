@@ -1,6 +1,8 @@
 #include "header.h"
 #include <iostream>
 #include <filesystem>
+#include <random>
+#include <unistd.h> // for sleep()
 
 
 // todo - will need to add a search for singles/compilation/ep function, not sure if i still want this feature but its here if i change my mind  
@@ -40,9 +42,6 @@ void download_wallpaper(std::string url,std::string wallpaper_name){
     if (!std::filesystem::exists("./Wallpapers/Finished")){
         std::filesystem::create_directory("./Wallpapers/Finished");        
     }
-
-    //remove all file extensions that the image might contain .rgb/.png/etc 
-    wallpaper_name = wallpaper_name.substr(0,wallpaper_name.find("."));
     wallpaper_name = wallpaper_name + ".jpg";
     if (!std::filesystem::exists("./Wallpapers/Temp/" + wallpaper_name) && !std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
         std::cout << "downloading album art into ./Wallpapers/Temp/" << wallpaper_name << "\n";
@@ -56,11 +55,11 @@ void download_wallpaper(std::string url,std::string wallpaper_name){
 
 
         // remove file from temp folder 
-        std::filesystem::remove("./Wallpapers/Temp/" + wallpaper_name);
+        for (const auto& entry : std::filesystem::directory_iterator("./Wallpapers/Temp/")) {
+            std::filesystem::remove(entry.path());
+        }
+
     }}
-
-
-    std::cout << wallpaper_name << "\n"; 
 }
 
 
@@ -69,44 +68,44 @@ void most_liked_albums(){ // displays albums with the most amount of likes (how 
 }
 
 
-
 void random_albums(int sleep_amount){
     refresh_access();
-    std::vector<std::unordered_map<std::string, std::string>> a = get_unique_albums();
-    // randomise the vectors contents 
+    std::vector<std::unordered_map<std::string, std::string>> spotify_albums = get_unique_albums();
+   
+    // Shuffle the vector
+    std::random_device rd; // random seed
+    std::mt19937 g(rd()); // uses seed to shuffle vector
+    std::shuffle(spotify_albums.begin(), spotify_albums.end(), g);
 
-    for (auto album : a) {    
-        // the reason why i'm only searching for albums is because sometimes spotify and apple might have different releases for singles, sometimes spotify might classify something as a single whilst apple hasnt got it as a single 
-        if (album["album_type"] == "album"){ 
-            //std::cout << album["name"] << "\n";
-            int artist_id = Itunes().get_id(album["artist"]);
+    for (auto s_album:spotify_albums){
+        if (s_album["album_type"] == "album"){
+            std::cout <<  s_album["name"] << "\n";
+            int artist_id = Itunes().get_id(s_album["artist"]);
+            //std::cout << artist_id << "\n";
             if (artist_id == 1){
-                std::cout << "Couldn't find artist: "  << album["artist"] << "\n";
+                std::cout << "Couldn't find artist: "  << s_album["artist"] << "\n";   
             }else{
+                std::cout << "getting album: " << "\n";
                 auto albums = Itunes().get_albums(std::to_string(artist_id));
-                auto found = Itunes().find_album(album["name"],albums);
+
+                std::cout << "searching for album: " << "\n";
+                auto found = Itunes().find_album(s_album["name"],albums);
                 if (found.size() > 0){
                     auto u = Itunes().uncompressed(found[0]);
-                    // change wallpaper 
 
-                    size_t last_slash = u.str().find_last_of('/');
-                    std::string wallpaper_name = u.str().substr(last_slash + 1);
-                    wallpaper_name = std::to_string(artist_id) + "-" + wallpaper_name;
+                    std::string wallpaper_name = s_album["artist_id"] + "-" + s_album["album_id"];
                     download_wallpaper(u.str(),wallpaper_name);
-
-
-                    std::cout << album["name"] << " " << found[0]["collectionName"] << " " << album["image"] << " " << u.str() << " "  << "\n";
+                    std::cout << s_album["name"] << " " << found[0]["collectionName"] << " " << s_album["image"] << " " << u.str() <<  " " <<found[0]["percentage"]<< "% certain"  << "\n";
                 }else{
-                    std::cout << "couldn't find " << album["name"] << "\n";
+                    std::cout << "couldn't find " << s_album["name"] << "\n";
                 }
-            } 
-        }
-        // sleep
+
+                sleep(sleep_amount); 
+            }
+        } 
     }
+
 }
-
-
-
 
 int main() {
     /*  check if spotify has the right credentials in the file 
@@ -115,7 +114,8 @@ int main() {
         create wallpaper folders if its not already created 
     */
 
-    //while (true){
-    random_albums(1);
-    //}
+    while (true){
+        random_albums(5);
+        printf("loop \n");
+    }
 }
