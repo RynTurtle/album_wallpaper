@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <random>
 #include <unistd.h> // for sleep()
+#include <windows.h>
 
 
 // todo - will need to add a search for singles/compilation/ep function, not sure if i still want this feature but its here if i change my mind  
@@ -42,7 +43,6 @@ void download_wallpaper(std::string url,std::string wallpaper_name){
     if (!std::filesystem::exists("./Wallpapers/Finished")){
         std::filesystem::create_directory("./Wallpapers/Finished");        
     }
-    wallpaper_name = wallpaper_name + ".jpg";
     if (!std::filesystem::exists("./Wallpapers/Temp/" + wallpaper_name) && !std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
         std::cout << "downloading album art into ./Wallpapers/Temp/" << wallpaper_name << "\n";
         download_url(url,"./Wallpapers/Temp/" + wallpaper_name);
@@ -102,12 +102,21 @@ void random_albums(int sleep_amount){
 
     for (auto s_album:spotify_albums){
         if (s_album["album_type"] == "album"){
-            std::string wallpaper_name = s_album["artist_id"] + "-" + s_album["album_id"];
-            if (!std::filesystem::exists("./Wallpapers/Finished/" + wallpaper_name)){
+            std::string wallpaper_name = s_album["artist_id"] + "-" + s_album["album_id"] + ".jpg";
+            
+            std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+            std::wstring wide_wallpaper_name = converter.from_bytes(wallpaper_name);
+            std::filesystem::path absolute_path = std::filesystem::absolute("Wallpapers/Finished/");
+            std::wstring wide_p = absolute_path.wstring();
+            std::wstring path = wide_p + wide_wallpaper_name;
+            
+            if (!std::filesystem::exists(path)){
                 find_and_download(s_album,wallpaper_name);
             }
             
-            // set wallpaper 
+            // change wallpaper 
+            SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, (void*)path.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+            std::wcout << path << "\n";
             sleep(sleep_amount); 
         }
     }
@@ -121,8 +130,8 @@ int main() {
         create wallpaper folders if its not already created 
     */
 
-    while (true){
-        random_albums(5);
-        printf("loop \n");
-    }
+    //while (true){
+    random_albums(20);
+        //printf("loop \n");
+    //}
 }
