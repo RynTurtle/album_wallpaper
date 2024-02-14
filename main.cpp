@@ -70,10 +70,11 @@ void most_liked_albums(){ // displays albums with the most amount of likes (how 
 
 
 
-void find_and_download(std::unordered_map<std::string, std::string> s_album, std::string wallpaper_name){
+bool find_and_download(std::unordered_map<std::string, std::string> s_album, std::string wallpaper_name){
     int artist_id = Itunes().get_id(s_album["artist"]);
     if (artist_id == 1){
-        std::cout << "Couldn't find artist: "  << s_album["artist"] << "\n";   
+        std::cout << "Couldn't find artist: "  << s_album["artist"] << "\n";  
+        return false;
     }else{
         std::cout << "getting album: " << "\n";
         auto albums = Itunes().get_albums(std::to_string(artist_id));
@@ -84,10 +85,13 @@ void find_and_download(std::unordered_map<std::string, std::string> s_album, std
             auto u = Itunes().uncompressed(found[0]);
             download_wallpaper(u.str(),wallpaper_name);
             std::cout << s_album["name"] << " " << found[0]["collectionName"] << " " << s_album["image"] << " " << u.str() <<  " " <<found[0]["percentage"]<< "% certain"  << "\n";
+            return true;
         }else{
             std::cout << "couldn't find " << s_album["name"] << "\n";
+            return false;
         }
     }
+    
 }
 
 
@@ -110,14 +114,17 @@ void random_albums(int sleep_amount){
             std::wstring wide_p = absolute_path.wstring();
             std::wstring path = wide_p + wide_wallpaper_name;
             
+            bool success = true;
             if (!std::filesystem::exists(path)){
-                find_and_download(s_album,wallpaper_name);
+                success = find_and_download(s_album,wallpaper_name);
             }
             
-            // change wallpaper 
-            SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, (void*)path.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
-            std::wcout << path << "\n";
-            sleep(sleep_amount); 
+            if (success == true){
+                // change wallpaper 
+                SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, (void*)path.c_str(), SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
+                std::wcout << "changing wallpaper -> " <<  path << "\n";
+                sleep(sleep_amount); 
+            }
         }
     }
 
