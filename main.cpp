@@ -4,6 +4,8 @@
 #include <random>
 #include <unistd.h> // for sleep()
 #include <windows.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 
 // todo - will need to add a search for singles/compilation/ep function, not sure if i still want this feature but its here if i change my mind  
@@ -130,15 +132,65 @@ void random_albums(int sleep_amount){
 
 }
 
+
+void check_tokens_and_verify_authentication(){
+    //  check if tokens.json exists, if it isnt then create it and write "access_token" "client_id" "client_secret" "refresh_token" with empty fields 
+    if (!std::filesystem::exists("./tokens.json")){
+        std::cout << "tokens file doesnt exist, creating file \n"; 
+        // Create JSON object
+        nlohmann::json root;
+        root["access_token"] = "";
+        root["client_id"] = "";
+        root["client_secret"] = "";
+        root["refresh_token"] = "";
+
+        // Write JSON to file
+        std::ofstream file("./tokens.json");
+        if (file.is_open()) {
+            file << std::setw(4) << root << std::endl;
+            file.close();
+            std::cout << "JSON file created successfully.\n";
+        } else {
+            std::cerr << "Unable to create JSON file.\n";
+        }
+    }
+
+    //  prompt user to enter client id and client secret 
+    if (get_token("client_id") == ""){
+        std::cout<< "You haven't got the required fields client_id, find this in the spotify  dashboard after creating an app https://developer.spotify.com/dashboard \n";
+        std::string client_id;        
+        std::cout << "enter your spotify client id \n";
+        std::cin >> client_id;
+        write_token("client_id",client_id);
+
+    }
+
+    if (get_token("client_secret") == ""){
+        std::cout<< "You haven't got the required fields client_secret, find this in the spotify  dashboard after creating an app https://developer.spotify.com/dashboard \n";
+        std::string client_secret;
+        std::cout << "enter your spotify client secret  \n";
+        std::cin >> client_secret;
+        write_token("client_secret",client_secret);
+    }
+
+
+    //  prompt user to open the spotify authentication site and paste the authorization code 
+    if (get_token("access_token") == "" && get_token("refresh_token") == ""){
+        std::string authorization_code;
+        std::cout << "Authorize the application to access spotify permisisons for the album wallpaper to work, when redirected copy paste the code from the url after code= \n ";
+        // prints link to authorize spotify application
+        Spotify().authorize_url();
+        std::cin >> authorization_code;
+        Spotify().get_tokens(authorization_code); 
+    }
+
+}
+
+
 int main() {
-    /*  check if spotify has the right credentials in the file 
-        if not then start the process for the user to add in their credentials input() and get auth tokens 
-
-        create wallpaper folders if its not already created 
-    */
-
-    //while (true){
-    random_albums(20);
-        //printf("loop \n");
-    //}
+    check_tokens_and_verify_authentication();
+    
+    while (true){
+        random_albums(20);
+    }
 }

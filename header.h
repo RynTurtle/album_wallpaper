@@ -8,6 +8,8 @@ nlohmann::json post_request(std::string url,std::string paramaters);
 int download_url(std::string url, std::string image_path);
 
 std::string get_token(std::string token_type);
+int write_token(std::string token_type, std::string value_wanted);
+
 bool is_in_vec_dics(std::vector<std::unordered_map<std::string, std::string>> list_of_dicts,std::string key, std::string value);
 nlohmann::json is_in_json(nlohmann::json list_of_dicts,std::string key, std::string value);
 
