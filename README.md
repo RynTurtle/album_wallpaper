@@ -4,3 +4,5 @@ Creates wallpapers based on the albums you like using the spotify api to get you
 
 
 ![Imgur Image](https://imgur.com/T51Y5KE.jpg)
+
+![Imgur Image](https://imgur.com/EsgWDcI.jpg)
