@@ -6,7 +6,8 @@
 #include <windows.h>
 #include <fstream>
 #include <nlohmann/json.hpp>
-
+#include <exception>
+#include <stdexcept>
 
 // todo - will need to add a search for singles/compilation/ep function, not sure if i still want this feature but its here if i change my mind  
 void current_albums(){
@@ -191,6 +192,12 @@ int main() {
     check_tokens_and_verify_authentication();
     
     while (true){
-        random_albums(20);
+        try{
+            random_albums(20);
+        }
+        catch(const std::exception &exc){
+            std::cerr << exc.what();
+        }
+
     }
 }

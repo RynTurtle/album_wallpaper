@@ -71,6 +71,7 @@ nlohmann::json get_request(std::string url, bool header){
     }
 
     // if nothing is returned then give an error 
+    std::cout << "didnt return anything when making request for some reason";
     throw;
 }
 
